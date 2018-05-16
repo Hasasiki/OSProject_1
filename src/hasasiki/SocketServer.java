@@ -22,6 +22,7 @@ public class SocketServer {
 	//global variable to storage the chat info for transfer
 	public String ClientMessage;
 	public String UserInput;
+	private int port = 5209;
 	//搭建服务器端
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
@@ -29,13 +30,19 @@ public class SocketServer {
 		//创建一个服务器端socket
 		socketServer.oneServer();
 	}
+	public void handle(Socket socket)throws Exception {
+		String key = socket.getInetAddress().getHostAddress()+":"+socket.getPort();
+		System.out.println("accept a socket:" + key);
+		Thread thread = new Thread(new ThreadSocket(socket));
+		thread.start();
+	}
 
 	public void oneServer() {
 		// TODO Auto-generated method stub
 		try {
 			ServerSocket server = null;
 			try {
-				server = new ServerSocket(5209);
+				server = new ServerSocket(port);
 				//指定绑定的端口并监听此端口
 				System.out.println("Server start!");
 				//
@@ -45,7 +52,10 @@ public class SocketServer {
 			
 			Socket socket = null;
 			try {
-				socket = server.accept();
+				while(true) {
+					socket = server.accept();
+					handle(socket);
+				}
 				//调用accept方法监听，等待客户链接，使用accept方法阻塞等待客户请求，有客户请求到来时则产生一个socket对象并继续执行
 				//单线程处理，一次只允许一个客户端访问
 				//THERE NEED A Supporting Multiple Clients!
@@ -58,7 +68,7 @@ public class SocketServer {
 				}catch(Exception e) {
 					System.out.println("Error."+e);//show error message
 				}
-			//获取输入流，读取客户端消息
+			/*//获取输入流，读取客户端消息
 			String line;
 			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			//由Socket对象得到输入流，并构造相应的BufferedReader对象
@@ -84,7 +94,7 @@ public class SocketServer {
 			writer.close();//关闭socket输出流
 			in.close();//关闭socket输入流
 			socket.close();//关闭socket
-			server.close();//关闭serverSocket
+			server.close();//关闭serverSocket*/
 		}catch(Exception e) {
 			System.out.println("Error."+e);
 		}
@@ -94,3 +104,4 @@ public class SocketServer {
 	}
 }
 //course resource copy by https://www.cnblogs.com/zhoudi/p/6025552.html
+//https://blog.csdn.net/ppt0501/article/details/30282493
